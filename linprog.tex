@@ -1,0 +1,1518 @@
+\documentclass[12pt]{amsart}
+
+\usepackage{amssymb, amsthm, amsmath}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\numberwithin{equation}{section}
+
+\renewcommand{\epsilon}{\varepsilon}
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\cF}{\mathcal{F}}
+\newcommand{\cG}{\mathcal{G}}
+\DeclareMathOperator{\rank}{rank}
+\DeclareMathOperator{\cone}{cone}
+\DeclareMathOperator{\conv}{conv}
+\DeclareMathOperator{\spn}{span}
+\DeclareMathOperator{\aff}{aff}
+\DeclareMathOperator{\interior}{int}
+\DeclareMathOperator{\bd}{bd}
+
+\setlength\parskip{0.5em}
+\setlength\parindent{0em}
+
+\begin{document}
+
+\title{Linear Programming}
+
+\author{Matthew Greenberg}
+\date{\today}
+\maketitle
+
+\section{Separation}
+
+\begin{theorem}
+    Let $S$ be a closed, convex subset of $\RR^n$, let
+    $x\in\RR^n\setminus S$, and let $y^*\in S$ be the point closest to $x$.
+    Then
+    \[
+        (x - y^*)\cdot(y - y^*)\leq 0
+    \]
+    for all $y\in S$.
+\end{theorem}
+
+\begin{proof}
+    Let $y\in S$.
+    The result clearly holds if $y=y^*$, so assume that $y\neq y^*$.
+    Suppose, for the purpose of getting a contradition, that
+    \[
+        (x - y^*)\cdot(y - y^*)> 0.
+    \]
+    Let $L$ be the line through $y^*$ and $y$ and let $z$ be the point
+    on $L$ closest to $x$:
+    \[
+        z = (1-t)y^* + ty,\quad\text{where}\quad
+        t=\frac{(x-y^*)\cdot(y-y^*)}{\|y-y^*\|^2}>0.
+    \]
+    By the law of cosines,
+    \begin{align*}
+        \|x-y\|^2 &= \|x-y^*\|^2 + \|y^*-y\|^2 - 2(x-y^*)^T(y-y^*)\\
+        &= \|x-y^*\|^2 + \|y^*-y\|^2 - 2t\|y-y^*\|^2\\
+        &= \|x-y^*\|^2 + (1-2t)\|y^*-y\|^2.
+    \end{align*}
+    Therefore,
+    \[
+        1-2t = \frac{\|x-y\|^2 - \|x-y^*\|^2}{\|y^*-y\|} > 0
+    \]
+    as $\|x-y^*\|<\|x-y\|$, and it follows that
+    \[
+        0 < t < \frac12.
+    \] 
+    Therefore, $z \in(y^*,y)\subseteq S$.
+    By the Pythagorean theorem,
+    \[
+        \|x-z\|^2 < \|x-z\|^2 + \|z - y^*\|^2 = \|x-y^*\|^2,
+    \]
+    contradicting the minimality of $\|x-y^*\|$.
+\end{proof}
+
+\begin{corollary}
+    Let $S$ be a closed, convex subset of $\RR^n$ and let
+    $x\in\RR^n\setminus S$.
+    Then there is a vector $a\in\RR^n$ such
+    that
+    \[
+        a\cdot x > a\cdot y\quad\text{for all}\quad y\in S.
+    \]
+\end{corollary}
+\begin{proof}
+    Let $y^*\in S$ be the point of $S$ closest to $x$ and take $a = x-y^*$.
+\end{proof}
+
+\textit{Exercise:}
+Let $S$ be a convex subset of $\RR^n$.
+Prove that $\interior \bar{S}=\interior S$.
+In particular, $S=\RR^n$ if and only if $\bar{S}=\RR^n$.
+
+\begin{corollary}
+    Let $S$ be a convex subset of $\RR^n$ with $S\neq \RR^n$.
+    Then $S$ is contained in some half-space.
+\end{corollary}
+
+\begin{corollary}\label{corollary: cone in half plane}
+    Let $S$ be a nonempty, closed, convex cone in $\RR^n$ with $S\neq\RR^n$.
+    Then there is a nonzero vector $a\in\RR^n$ such that $a\cdot y\leq 0$
+    for all $y\in S$.
+\end{corollary}
+
+\begin{proof}
+    Let $x\in\RR^n\setminus S$.
+    Then, by the preceding theorem, there is a vector $a\in\RR^n$, such that
+    $a\cdot x > a\cdot y$ for all $y\in S$.
+    Since $S$ is assumed nonempty, $a\neq 0$.
+    Since $S$ is a closed, convex cone, $0\in S$. Therefore, $a\cdot x > 0$.
+    Suppose $y\in S$ and $a\cdot y > 0$. Then
+    \[
+        t:=\frac{a\cdot x}{a\cdot y} > 0,
+    \]
+    so $ty\in C$ as $C$ is a cone.
+    But then
+    \[
+        a\cdot x > a\cdot (ty) = t(a\cdot y) = a\cdot x,
+    \]
+    a contradiction.
+\end{proof}
+
+\begin{theorem}
+    Let $S$ be an $n$-dimensional, convex subset of $\RR^n$.
+    Let $y\in \RR^n$, and let
+    \[
+        N_y := \{v\in\RR^n :
+        \text{$y + \epsilon v\in S$ for some $\epsilon > 0$}\}
+    \]
+    be the cone of feasible directions at $y$.
+    Then $N_y=\RR^n$ if and only if $y\in \interior S$.
+\end{theorem}
+
+\begin{proof}
+    Suppose $N_y=\RR^n$.
+    Then there is an $\epsilon > 0$ such that
+    $y\pm \epsilon e_i\in S$ for all $i=1,\ldots,n$.
+    The convex hull of these points is contained in $S$ and contains $y$ 
+    in its interior, putting $y$ in $\interior S$.
+
+    Conversely, suppose $N_y\neq \RR^n$.
+    By Corollary~\ref{corollary: cone in half plane},
+    there is a vector nonzero $a\in\RR^n$ such that
+    $a\cdot v\leq 0$ for all $v\in N_y$.
+    In particular, $a\notin N_y$.
+    Therefore, $y + \epsilon a\notin S$ for any $\epsilon > 0$.
+    Therefore, $y\notin \interior S$.
+\end{proof}
+
+\begin{theorem}
+    Let $S$ be a convex subset of $\RR^n$ and let $x\in\RR^n$.
+    Then $x\in\bd S$ if and only if there is a closed, convex cone
+    $N_x\subsetneq \RR^n$ such that $S\subseteq x + N_x$.
+\end{theorem}
+
+\begin{theorem}
+    Let $S$ be an $n$-dimensional, convex subset of $\RR^n$ and let
+    $x\in\bd S$.
+    Then there is a nonzero vector $a\in\RR^n$ such that
+    $a\cdot y\leq a\cdot x$ for all $y\in S$.
+\end{theorem}
+
+\begin{proof}
+    We can assume, without loss of generality, that $S$ is closed.
+    Since $x\in\bd S$, $x\notin\interior S$.
+    Therefore, $N_y\neq \RR^n$ and, consequently, $N_y^*\neq \RR^n$.
+    Let $a\in-N_y^*$, so that
+    $a\cdot v\leq 0$ for all $v\in N_y$.
+    Let $y\in S$.
+    Then $y-x\in N_y$, so $a\cdot(y-x)\leq 0$.
+    Rearranging gives $a\cdot y \leq a\cdot x$.
+\end{proof}
+
+\begin{corollary}
+    Let $S$ be an $n$-dimensional, closed, convex subset of $\RR^n$ and let
+    $x\in\bd S$.
+    Then $x$ is contained in a face of $S$ of dimension $< n$.
+\end{corollary}
+
+Let $S$ be a convex subset of $\RR^n$.
+A hyperplane $H$ in $\RR^n$ is called a \emph{supporting hyperplane}
+of $S$ if
+\begin{enumerate}
+    \item $S$ is contained in one of the closed half-spaces associated to $H$,
+    \item $\bar S\cap H\neq\emptyset$.
+\end{enumerate}
+
+\begin{theorem}
+    Let $\mathcal{H}_S$ be the set of supporting hyperplanes of $S$.
+    For each $H\in\mathcal{H}_S$, choose $a_H\in\RR^n$ and $b_H\in\RR$ such that
+    \[
+        H = \{x\in\RR^n : a_H\cdot x = b_H\}
+    \]
+    and
+    \[
+        S\subseteq \{x\in \RR^n : a_H\cdot x\leq b_H\}=: H^-.
+    \]
+    Then
+    \[
+        \bar{S}=\bigcap_{H\in\mathcal{H}_S}H^-.
+    \]    
+\end{theorem}
+
+\begin{proof}
+    Obviously, $\bar S\subset \bigcap_{H\in\mathcal{H}_S}H^-$.
+    Suppose $x\notin \bar S$.
+    Let $y^*$ be the point in $\bar S$ closest to $x$.
+    Then
+    \[
+        (x-y^*)\cdot(y-y^*)\leq 0
+    \]
+    for all $y\in\bar S$.
+    Let $a=x-y^*$, let $b=a\cdot y^*$, and let
+    \[
+        H = \{z\in\RR^n : a\cdot z= b\}.
+    \]
+    Then $\bar S\subseteq H^-$ and $y^*\in \bar S\cap H$, so $H\in \mathcal{H}_S$.
+    Since $y^*\neq x$,
+    \[
+        a\cdot (x-y^*) = \|x-y^*\|^2 > 0.
+    \]
+    Therefore, $a\cdot x > b$ and $x\notin H^-$. Therefore,
+    $x\notin\bigcap_{H\in\mathcal{H}_S}H^-$.
+\end{proof}
+
+A \emph{face} of $S$ is the intersection of $S$ with one of its supporting
+hyperplanes.
+
+
+\section{General position}
+
+\begin{theorem}
+    The following are equivalent for points $x_0,\ldots,x_k\in\RR^n$:
+    \begin{enumerate}
+        \item $x_0,\ldots,x_k$ are not contained in any
+        $(k-1)$-dimensional, affine subspace of $\RR^n$.
+        \item $x_1-x_0,\ldots,x_k-x_0$ are linearly independent.
+    \end{enumerate}
+\end{theorem}
+
+\begin{proof}\hfill
+    
+    (1) implies (2):
+    Suppose $x_1-x_0,\ldots,x_k-x_0$ are linearly dependent.
+    Then they lie in a $(k-1)$-dimensional subspace $U$ of $\RR^n$ and
+    $Z=U+x_0$ is a $(k-1)$-dimensional, affine subspace of $\RR^n$
+    containing $x_0,\ldots,x_k$.
+
+    (2) implies (1):
+    Suppose $x_0,\ldots,x_k\in Z$, where $Z$ is a $(k-1)$-dimensional,
+    affine subspace of $\RR^n$.
+    Then $U:=Z-x_0$ is a $(k-1)$-dimensional subspace of $\RR^n$ and,
+    therefore, the vectors $x_1-x_0,\ldots,x_k-x_0\in U$ are linearly
+    dependent.
+\end{proof}
+
+\begin{theorem}
+    Let $x_0,\ldots,x_n\in \RR^n$ and let
+    \[
+        \Delta(x_0,\ldots,x_n)=\{t_0x_0+\cdots t_nx_n : t\in\Delta^n\}.
+    \]
+    Then $x_0,\ldots,x_n$ are in general position if and only if
+    \[
+        \interior\Delta(x_0,\ldots,x_n) = \{t_0x_0+\cdots t_nx_n :
+        t\in\interior\Delta^n\}.
+    \]
+\end{theorem}
+
+\begin{proof}
+    \begin{align*}
+        \interior \Delta(x_0,\ldots,x_n)
+        &= x_0 + \interior \Delta(0, x_1-x_0,\ldots,x_n-x_0)\\
+        &= x_0 + \interior \left\{\sum_{i=1}^nt_i(x_i-x_0) :
+        t_i\geq 0,\; \sum_{i=1}^n t_i\leq 1\right\}
+    \end{align*}
+
+    Suppose $x_0,\ldots,x_n$ are in general position.
+    Then $x_1-x_0,\ldots,x_n-x_0$ are a basis of $\RR^n$ and there
+    is a unique linear automorphism $f:\RR^n\to\RR^n$
+    such that $f(e_i)=x_i-x_0$, where $e_1,\ldots,e_n$ is the standard
+    basis of $\RR^n$.
+    Applying $f$ to the identity
+    \[
+        \interior\left\{t\in\RR^n :
+        t_i\geq 0,\; \sum_{i=1}^n t_i\leq 1\right\}
+        = \left\{t\in\RR^n : t_i > 0,\; \sum_{i=1}^n t_i< 1\right\}
+    \]
+    gives
+    \begin{multline*}
+        \interior \left\{\sum_{i=1}^nt_i(x_i-x_0) :
+            t_i\geq 0,\; \sum_{i=1}^n t_i\leq 1\right\}
+       \\ = \left\{\sum_{i=1}^nt_i(x_i-x_0) :
+        t_i> 0,\; \sum_{i=1}^n t_i< 1\right\}.
+    \end{multline*}
+    Therefore,
+    \begin{multline*}
+        x_0 + \interior \left\{\sum_{i=1}^nt_i(x_i-x_0) :
+        t_i\geq 0,\; \sum_{i=1}^n t_i\leq 1\right\}\\
+        =x_0 + \left\{\sum_{i=1}^nt_i(x_i-x_0) :
+        t_i> 0,\; \sum_{i=1}^n t_i< 1\right\}\\
+        =\left\{\sum_{i=0}^nt_ix_i :
+        t\in\interior\Delta^n\right\}.
+    \end{multline*}
+
+    Conversely, suppose $x_0,\ldots,x_n$ are not in general position.
+    Then they lie in an $(n-1)$-dimensional, affine subspace $Z$
+    of $\RR^n$.
+    As $\Delta(x_0,\ldots,x_n)$ is containe in $Z$ and $Z$ has empty
+    interior, so does $\Delta(x_0,\ldots,x_n)$.
+    On the other hand, $\{t_0x_0+\cdots t_nx_n :
+    t\in\interior\Delta^n\}$ is obviously nonempty.
+\end{proof}
+
+\section{Affinity}
+
+An \emph{affine combination} of points $x_1,\ldots,x_m\in\RR^{n}$
+is a point of the form $\sum t_ix_i$, where $\sum t_i=1$.
+
+A subset $A$ of $\RR^n$ is a \emph{affine subspace of $\RR^n$}
+if it is closed under convex combination.
+
+\begin{lemma}
+Let $A\subset \RR^n$.
+Then $A$ is affine if and only if for every pair $x, y$ of distinct
+points of $A$, the line through $x$ and $y$ is contained in $A$.
+\end{lemma}
+
+\begin{lemma}
+    The following are equivalent for a subset $A$ of $\RR^n$.
+    \begin{enumerate}
+        \item $A$ is an affine subspace of $\RR^n$.
+        \item $A - a$ is a linear subspace of $\RR^n$ for any $a\in A$.
+        \item $A - a$ is a linear subspace of $\RR^n$ for some $a\in A$.
+    \end{enumerate}
+\end{lemma}
+
+\begin{proof}
+    (1) implies (2):
+    Let $A$ is an affine subspace of $\RR^n$ and let $a\in A$.
+    Let $x, y\in A - a$. Then
+    \[
+        x + y + a = (x + a) + (y + a) - a
+    \]
+    is an affine combination of $x+a$, $y+a$, and $a$, all elements
+    of $A$. Therefore, $x+y+a\in A$ and $x+y\in A - a$.
+    Now let $x\in A - a$ and let $t\in\RR$. Then
+    \[
+        tx + a = t(x + a) + (1 - t)a
+    \]
+    is an affine combination of $x+a$ and $a$, both in $A$.
+    Therefore, $tx+a\in A$ and $tx\in A - a$.
+    Thus, $A-a$ is a linear subspace of $\RR^n$.
+
+    (2) implies (3): Obvious.
+
+    (3) implies (1):
+    Let $A\subset\RR^n$, let $a\in A$, and suppose that $A - a$
+    is a linear subspace of $\RR^n$. 
+    Suppose $\sum t_ia_i$ is an affine combination of
+    $a_1,\ldots,a_n\in A$.
+    Then
+    \begin{align*}
+        \sum t_ia_i &= \sum t_i(a_i - a) + \sum t_ia\\
+        &= \sum t_i(a_i - a) + a\\
+        &\in (A - a) + a\\
+        &= A.
+    \end{align*}
+    Thus, $A$ is an affine subspace of $\RR^n$.
+\end{proof}
+
+Let $A$ be an affine subspace of $\RR^n$.
+Call a vector $x\in\RR^n$ a \emph{translation of $A$} if
+$A + x \subseteq A$. Let $T(A)$ be the set of all translations of $A$.
+
+\begin{lemma}
+    Let $A$ be an affine subspace of $\RR^n$. Then:
+    \begin{enumerate}
+        \item For any $a\in A$, $T(A) = A - a$.
+        \item $T(A)$ is a linear subspace of $\RR^n$.
+    \end{enumerate}
+\end{lemma}
+
+\begin{proof}
+    It is clear that $T(A)$ is closed under addition.
+    To see that it's closed under scalar multiplication,
+    let $x\in T(A)$ and let $t\in\RR$.
+    If $a\in A$, then $x + a\in A$ and
+    \[
+        a + tx = (1 - t)a + t(x + a),
+    \]
+    being a convex combination of elements of $A$, also belongs to $A$.
+
+    Let $x\in A - a$ and let $b\in A$.
+    Then
+    \[
+        b + x = b + (x + a) - a,
+    \]
+    being a convex combination of elements of elements of $A$,
+    belongs to $A$.
+    Therefore, $A - a\subseteq T(A)$.
+    Conversely, suppose $x\in T(A)$.
+    Then $a + x\in A$, so $x\in A - a$.
+    Thus, $T(A)\subseteq A - a$.
+\end{proof}
+
+\begin{lemma}
+    Let $x,y\in\RR^n$ and let $V$ and $W$ be a linear subspaces of $\RR^n$.
+    Then $x+V = y + W$ if and only if $V=W$ and $y-x\in V$.
+    In particular, the linear subspace $W$ is uniquely determined by the
+    affine subspace $x+W$.
+\end{lemma}
+
+\begin{proof}
+    Since $0\in W$, $y\in x+W$ and $y-x\in W$.
+    Let $v\in V$.
+    Then $x+v=y+w$ for some $w\in W$ and $v = (y-x) + w\in W$.
+    Therefore, $V\subseteq W$.
+    The reverse containment holds by symmetry, so $V=W$.
+\end{proof}
+
+The \emph{dimension} $\dim A$ of an affine subset $A$ of $\RR^n$
+is defined by
+\[
+    \dim A := \dim T(A).
+\]
+
+The \emph{affine hull} of a set $S\subseteq\RR^n$, denoted $\aff S$, is the set of
+affine combinations of finite subsets of $S$.
+
+\begin{lemma}
+    Let $S\subseteq\RR^n$.
+    Then $\aff S$ is an affine subspace of $\RR^n$.
+\end{lemma}
+
+
+\section{Convexity}
+
+The \emph{standard $n$-simplex} is
+\[
+\Delta^n = \left\{(t_0,\ldots,t_n)\in[0,1]^{n+1} : \sum t_i=1\right\}
+\subseteq\RR^{n+1}.
+\]
+
+A \emph{convex combination} of points $x_1,\ldots,x_m\in\RR^n$
+is a point of the form $\sum t_ix_i$, where $t\in\Delta^{m-1}$.
+A set $S\subset\RR^n$ is \emph{convex} if it is closed under
+convex combination.
+
+A convex combination of points $x, y\in\RR^n$ is
+a point of the form $(1-t)x + ty$, where $t\in [0,1]$.
+
+Define the \emph{closed interval $[x, y]$} to be the set of all convex
+combinations of $x$ and $y$:
+\[
+    [x, y] = \{(1-t)x + ty : t\in[0, 1]\}.
+\]
+
+\begin{lemma}
+    The following are equivalent for $S\subset\RR^n$:
+    \begin{enumerate}
+        \item $S$ is convex.
+        \item $[x,y]\subseteq S$ for all $x, y\in S$.
+    \end{enumerate}
+    
+\end{lemma}
+
+\begin{proof}
+    (1) implies (2): Obvious.
+
+    (2) implies (1): Suppose (2) holds.
+    Let $x_0,\ldots x_m\in S$ and let $t\in\Delta^m$.
+    We prove that $y:=\sum t_ix_i\in S$ by induction on $m$.
+    The case $m=1$ follows directly from our hypothesis.
+    Now suppose that the result holds for $m-1$.
+    Let
+    \[
+        u_i = \frac{t_i}{1 - t_m},\qquad i<m.
+    \]
+    Then $u\in\Delta^{m-1}$ as
+    \[
+        t_0+\cdots+t_{m-1} = 1-t_m.
+    \]
+    By the inductive hypothesis,
+    \[
+        \sum_{i<m} u_ix_i\in S.
+    \]
+    Therefore, 
+    \[
+        y = (1-t_m)z + t_mx_m\in [z,x_m]\subseteq S.\qedhere
+    \]
+\end{proof}
+
+A set $S\subseteq\RR^n$ is \emph{convex} if $[x, y]\subseteq S$ for
+all $x, y\in S$.
+
+\begin{lemma}
+    Let $A$ be an affine subset of $\RR^n$.
+    Then $A$ is convex.
+\end{lemma}
+\begin{proof}
+    Convex combinations are affine combinations.
+\end{proof}
+
+Let $S$ be a convex subset of $\RR^n$.
+The \emph{dimension} of $S$, denoted $\dim S$, is defined by
+\[
+    \dim S = \dim\aff S.
+\]
+
+Let $X$ be a subset of $\RR^n$.
+The \emph{convex hull} of $X$, denoted $\conv X$, is the set
+of convex combinations of finite subsets of $X$.
+It is easy to see that $X$ is convex if and only if $X=\conv X$.
+
+\begin{theorem}[Carath\'eodory]
+    Let $X\subset\RR^n$.
+    Then every point in $\conv X$ is a combination of $n+1$ elements of $X$.
+\end{theorem}
+
+\begin{proof}
+Suppose not. Then there is a point $x\in\RR^n$ and a $p>n+1$ such that
+\begin{enumerate}
+    \item $x$ is a convex combination of $p$ points $x_1,\ldots,x_p\in X$, and
+    \item $x$ cannot be expressed as a convex combination of fewer than $p$ points of $X$.
+\end{enumerate}
+Let $t\in\Delta^{p-1}$ be such that
+\[
+    x=\sum_{i=1}^p t_ix_i\tag{\dag}.
+\]
+By (2), we must have $t_i>0$ for all $i$.
+
+Identify $\RR^n$ with $\RR^{n\times 1}$ and let
+\[
+    A = \begin{pmatrix}
+        1&\cdots&1\\
+        x_1&\cdots&x_p
+    \end{pmatrix}\in\RR^{(n+1)\times p}.
+\]    
+Since $p>n+1$, the nullspace $N(A)$ is nonzero.
+Let $s\in N(A)$ be such that $s_i > 0$ for some $i$.
+Then
+\[
+    \sum_{i=1}^p s_i=0\qquad\text{and}\qquad
+    \sum_{i=1}^p s_ix_i = 0.
+\]
+Let $i_0$ be an index such that
+\[
+    \frac{t_{i_0}}{s_{i_0}} = \min\left\{\frac{t_i}{s_i} : s_i > 0\right\}
+\]
+and solve for $x_{i_0}$ in terms of $x_i$, $i\neq i_0$:
+\[
+    x_{i_0} = -\sum_{i\neq i_0}\frac{s_i}{s_{i_0}}x_i
+\]
+Substituting into (\dag) gives
+\[
+    x = \sum_{i\neq i_0}r_ix_i,\qquad
+    r_i:= t_i - \frac{t_{i_0}}{s_{i_0}}s_i.\tag{\ddag}
+\]
+If $s_i\leq 0$, then $r_i>0$ as $t_i$, $t_{i_0}$, and $s_{i_0}$
+are all positive.
+If $s_i>0$, then $r_i\geq 0$ by definition of $i_0$.
+
+Since $r_{i_0}=0$ and $s_1+\cdots+s_p=0$,
+\[
+\sum_{i\neq i_0} r_i = \sum_{i=1}^p r_i = 
+\sum_{i=1}^p t_i - \frac{t_{i_0}}{s_{i_0}}\sum_{i=1}^p s_i
+= 1 - 0 = 1.
+\]
+Thus, (\ddag) expresses $x$ as a convex combination of the
+$p$ vectors $x_i$, $i\neq i_0$, contradicting (2).
+\end{proof}
+
+\begin{corollary}
+    Let $K\subset\RR^n$ be a compact set. Then $\conv K$ is compact.
+\end{corollary}
+
+\begin{proof}
+    Define
+    \[
+        f:\Delta^n\times K^{n+1}\longrightarrow \RR^n
+    \]
+    by
+    \[
+        f(t, (x_0,\ldots,x_n)) = \sum_{i=0}^nt_ix_i.
+    \]
+    Then $f$ is continuous and, by Carath\'eodory's Theorem,
+    has image $\conv K$. The result follows.
+\end{proof}
+
+A function $f:\RR^n\to\RR$ is \emph{convex} if
+\[
+    f((1-t)x + ty)\leq (1-t)f(x) + tf(y)
+\]
+for all $x,y\in\RR^n$ and all $t\in[0, 1]$.
+
+\begin{lemma}
+    Let $f:\RR^n\to\RR$ be a convex function. Then
+    \[
+        S:=\{x\in\RR^n : f(x)\leq M\}
+    \]
+    is convex.
+\end{lemma}
+
+\begin{proof}
+    Let $x, y\in S$ and let $t\in[0, 1]$.
+    Then
+    \[
+        f((1-t)x + ty)\leq (1-t)f(x) + tf(y) \leq (1-t)M + tM = M,
+    \]
+    implying $(1-t)x+ty\in S$.
+\end{proof}
+
+\begin{theorem}
+    Let $S\subseteq\RR^n$ be a convex set and
+    let $f:\RR^n\to\RR$ be strictly convex.
+    Suppose that $x^*\in S$ and $x^{**}\in S$ satisfy
+    \[
+        f(x^*) = \inf\{f(x) : x\in S\} = f(x^{**}).
+    \]
+    Then $x^*=x^{**}$.
+\end{theorem}
+
+\begin{proof}
+    By the convexity of $S$, $y:=\frac12(x^*+x^{**})\in S$.
+    If $x^*\neq x^{**}$, then
+    \[
+        f(y) < \frac12(f(x^*) + f(x^{**})) = \inf\{f(x): x\in S\}
+    \]
+    by the strict convexity of $f$.
+    This contradicts the minimality of $f(x^*)$.
+\end{proof}
+
+\begin{theorem}
+    Let $S\subseteq\RR^n$ be convex and let $f:\RR^n\to\RR$ be
+    a convex function.
+    Suppose $x^*\in S$ is a local minimum of $f$ on $S$, i.e.,
+    there is an $\epsilon > 0$ such that
+    \[
+        f(x^*)\leq f(x) \quad\text{for all}\quad
+        x\in S,\; \|x-x^*\|<\epsilon.
+    \]
+    Then $x^*$ is a global mimimum of $f$ on $S$, i.e.,
+    \[
+        f(x^*)\leq f(x) \quad\text{for all}\quad
+        x\in S.
+    \]
+\end{theorem}
+
+\begin{proof}
+    Suppose $x^{**}\in S$ satisfies $f(x^{**})< f(x^*)$.
+    Let
+    \[
+        t=\frac\epsilon{2\|x^* - x^{**}\|}
+    \]
+    and let
+    \[
+        y = (1-t)x^* + tx^{**}.
+    \]
+    Then $y\in S$ and 
+    \[
+        \|y - x^*\| = \frac\epsilon2<\epsilon.
+    \]
+    Moreover,
+    \[
+        f(y)\leq (1-t)f(x^{**}) + tf(x^*)< f(x^*),
+    \]
+    contradicting the local minimality of $x^*$.
+\end{proof}
+
+
+
+\section{Fourier-Motzkin Elimination}
+
+\begin{lemma}
+    Let $A\in\RR^{n\times n}$ be an invertible matrix linear isomorphism and let
+    $P\subseteq\RR^n$ be a polyhedron.
+    Then $AP$ is a polyhedron.
+\end{lemma}
+
+\begin{proof}
+    It suffices to consider the case where $P$ is a half space, which
+    is easily dealt with:
+    \[
+        A\{x\in\RR^n : ax\leq b\} = \{y\in\RR^n : (aA^{-1})y\leq b\}
+    \]
+\end{proof}
+
+\begin{theorem}[Fourier-Motzkin Elimination]
+    Let $\pi:\RR^n\to\RR^{n-1}$ be projection onto the first $n-1$
+    coordinates:
+    \[
+        f(x_1,\ldots,x_n) = (x_1,\ldots,x_{n-1})
+    \]
+    Let $P\subseteq\RR^n$ be a polyhedron.
+    Then $f(P)$ is a polyhedron.
+\end{theorem}
+
+\begin{proof}
+    Suppose
+    \[
+        P = \{x\in\RR^n : Ax\leq b\},
+    \]
+    where $A\in\RR^{m\times n}$ and $b\in\RR^{m\times 1}$.
+    Let $I_-$, $I_0$, and $I_+$ be the sets of indices $i$ for
+    which $a_{in} < 0$, $a_{in} = 0$, and $a_{in} > 0$, respectively.
+    
+    A point $(x_1,\ldots,x_{n-1})$ belongs to $f(P)$ if and only if
+    \[
+        \sum_{j=1}^{n-1}a_{ij}x_j \leq b_i
+        \quad\text{for all}\quad i\in I_0\tag{\dag}
+    \]
+    and there is an $x_n\in\RR$ such that
+    \[
+        \sum_{j=1}^n a_{ij}x_j \leq b_i
+        \quad\text{for all}\quad i\in I_-\cup I_+.\tag{\ddag}
+    \]
+    System (\ddag) is equivalent to
+    \begin{align*}
+        x_n &\geq \frac{b_i}{a_{in}}
+        - \sum_{j=1}^{n-1}\frac{a_{ij}}{a_{in}}x_j
+        &\text{for all $i\in I_-$},\\
+        x_n &\leq \frac{b_i}{a_{in}}
+        - \sum_{j=1}^{n-1}\frac{a_{ij}}{a_{in}}x_j
+        &\text{for all $i\in I_+$}.
+    \end{align*}
+    Therefore, and there is an $x_n\in\RR^n$ satisfying (\ddag)
+    if and only if
+    \[
+        \frac{b_p}{a_{pn}}
+        - \sum_{j=1}^{n-1}\frac{a_{pj}}{a_{pn}}x_j
+        \leq
+        \frac{b_q}{a_{qn}}
+        - \sum_{j=1}^{n-1}\frac{a_{qj}}{a_{qn}}x_j
+        \quad\text{for all}\quad p\in I_-,\; q\in I_+.
+    \]
+    \[
+        \sum_{j=1}^{n-1}\left(\frac{a_{qj}}{a_{qn}} - \frac{a_{pj}}{a_{pn}}\right)x_j
+        \leq\frac{b_q}{a_{qn}}-\frac{b_p}{a_{pn}},
+        \quad p\in I_-,\; q\in I_+.
+    \]    
+\end{proof}
+
+This theorem is false with ``polyhedron'' replaced by ``closed, convex set'':
+\[
+    C := \{(x,y)\in\RR^2 : x\geq e^y\}
+\]
+is closed and convex, but
+\[
+    \{x\in\RR : \text{$(x,y)\in C$ for some $y\in\RR$}\} = (0,\infty]
+\]
+is not closed.
+
+
+\begin{theorem}
+    Let $P\subseteq\RR^n$ be a polyhedron and let $A\in\RR^{m\times n}$.
+    Then
+    \[
+        Q:=\left\{\begin{pmatrix}x\\y\end{pmatrix}\in\RR^{n+m} :
+        \text{$x\in P$ and $y=Ax$}\right\}
+    \]
+    is a polyhedron.
+\end{theorem}
+
+\begin{proof}
+    Suppose
+    \[
+        P = \{x\in\RR^n : Bx\leq c\}.
+    \]
+    Then
+    \[
+        Q = \left\{
+            \begin{pmatrix}x\\y\end{pmatrix} \in\RR^{n + m}:
+            \begin{pmatrix}B&0\end{pmatrix}
+            \begin{pmatrix}x\\y\end{pmatrix}\leq c\text{ and }
+            \begin{pmatrix}A&-I\end{pmatrix}
+            \begin{pmatrix}x\\y\end{pmatrix}=0
+        \right\}
+    \]
+    is evidently a polytope.
+\end{proof}
+
+\begin{theorem}
+    Let $P\subseteq\RR^m$ and $Q\subseteq\RR^n$ be polyhedra.
+    Then $P\times Q\subseteq\RR^{m + n}$ is a polyhedron.
+\end{theorem}
+\begin{proof}
+    Suppose
+    \[
+        P = \{x\in\RR^m : Ax\leq b\}
+        \quad\text{and}\quad
+        Q = \{y\in\RR^n : Cx\leq d\}.
+    \]
+    Then
+    \[
+        P\times Q = \left\{
+            \begin{pmatrix}x\\y\end{pmatrix}\in\RR^{m+n} :
+            \begin{pmatrix}A&0\\0&C\end{pmatrix}
+            \begin{pmatrix}x\\y\end{pmatrix}
+            \leq\begin{pmatrix}b\\d\end{pmatrix}    
+        \right\}
+    \]
+    is evidently a polyhedron.
+\end{proof}
+
+Let $P,Q\subseteq\RR^n$ be polytopes. Define
+\[
+    P+Q = \{x + y : x\in P,\; y\in Q\}.
+\]
+\begin{theorem}
+    $P+Q$ is a polytope.
+\end{theorem}
+\begin{proof}
+    $P+Q$ is the image of $P\times Q$ under the linear map
+    $(x,y)\mapsto x+y$.
+\end{proof}
+
+\begin{corollary}
+    Let $P\subseteq\RR^n$ be a polyhedron and let
+    $A\in\RR^{m\times n}$.
+    Then $AP\subseteq\RR^m$ is a polytope.
+\end{corollary}
+
+
+
+\section{Cones}
+
+A \emph{conic combination} of vectors $x_1,\ldots,x_m\in \RR^n$
+is a vector of the form $\sum t_ix_i$ where $t_i\geq 0$ for all $i$.
+A subset $C$ of $\RR^n$ is a \emph{cone} if it is closed under conic
+combination.
+
+The \emph{conic hull} of a set $S\subseteq\RR^n$, denoted $\cone S$, is the set of
+convex combinations of finite subsets of $S$.
+
+\begin{lemma}
+    A subset $C$ of $\RR^n$ is a cone if and only if $C = \cone C$.    
+\end{lemma}
+
+\begin{lemma}
+    Let $C$ be a cone in $\RR^n$. Then $C$ is convex.
+\end{lemma}
+
+\begin{proof}
+    Convex combinations are conic combinations.
+\end{proof}
+
+Let $\cF\subset\RR^{n\times 1}$ and let $x^*\in\cF$. Let
+\[
+    C = \{c\in \RR^{1\times n} : cx^* = \inf\{cx : x\in\cF\}\}.
+\]
+The $C$ is a cone.
+
+
+A cone $C\subseteq\RR^n$ is \emph{finitely generated} if is the conic
+hull of a finite set of points.
+
+\begin{lemma}
+    Let $x_1,\ldots,x_m\in\RR^n$ be linearly independent.
+    Then $\cone\{x_1,\ldots,x_m\}$ is closed.
+\end{lemma}
+
+\begin{proof}
+Let $x_{m+1},\ldots,x_n\in\RR^n$ be such that
+$x_1,\ldots,x_m,x_{m+1},\ldots,x_n$ is a basis of $\RR^n$.
+Let $e_1,\ldots,e_n$ be the standard basis of $\RR^n$ and define
+a linear automorphism $f:\RR^n\to\RR^n$ by $f(e_i) = x_i$.
+In particular, $f$ is closed.
+Let
+\[
+    C = \{t\in\RR^n: t_1,\ldots,t_m\geq 0,\; t_{m+1},\ldots,t_n=0\}.
+\]
+Then $C$ is closed and $\cone\{x_1,\ldots,x_m\}=f(C)$.
+Since $f$ is closed, so is $\cone\{x_1,\ldots,x_n\}$.
+\end{proof}
+
+\begin{theorem}
+    Let $C$ be a finitely generated cone in $\RR^n$.
+    Then $C$ is closed.
+\end{theorem}
+
+\begin{proof}
+    Let $y\in C$.
+    Let $X$ be a subset of $\{x_1,\ldots,x_m\}$ of minimal size
+    such that $y\in \cone X$.
+    We may assume, without loss of generality,
+    that $X=\{x_1,\ldots,x_\ell\}$ and write
+    \[
+        y = \sum_{i=1}^\ell t_ix_i\quad\text{with}\quad t_i>0.
+        \tag{\dag}
+    \]
+    Suppose $X$ is linearly dependent.
+    Then there are scalars $s_i$, at least one of which is positive, such that
+    \[
+        \sum_{i=1}^\ell s_ix_i=0.
+    \]
+    Without loss of generality, we may assume that
+    \[
+        \frac{s_1}{t_1}\leq \cdots\leq \frac{s_\ell}{t_\ell}.
+    \]
+    It follows that $s_\ell > 0$.
+    Therefore,
+    \[
+        t_\ell\frac{s_i}{s_\ell}\leq t_i,\qquad i<\ell.
+        \tag{\ddag}
+    \]
+    Solve for $x_\ell$ in terms of $x_1,\ldots,x_{\ell-1}$:
+    \[
+        x_\ell = -\sum_{i=1}^{\ell-1}\frac{s_i}{s_\ell}x_i
+    \]
+    Substituting into (\dag), we get
+    \[
+        y = \sum_{i=1}^{\ell-1} \left(t_i
+        - t_\ell\frac{s_i}{s_\ell}\right)x_i.
+    \]
+    By (\ddag), this is a conic combination,
+    contradicting the minimality of $\ell$.
+    Therefore, $X$ must be linearly independent as claimed.
+
+    Let $\mathcal{X}$ be the set of linearly independent subsets of
+    $\{x_1,\ldots,x_m\}$. It follows from the above that
+    \[
+        \cone\{x_1,\ldots,x_m\} = \bigcup_{X\in\mathcal{X}}\cone X.
+    \]
+    By the preceding lemma, each set $\cone X$ is closed.
+    Since $\mathcal{X}$ is finite, $\cone\{x_1,\ldots,x_m\}$ is closed, too.
+\end{proof}
+
+\section{Remedial linear algebra}
+
+\begin{theorem}
+    Let $W$ be a subspace of $\RR^n$. Then $W$ has an orthonormal basis.
+\end{theorem}
+
+\begin{theorem}
+    Let $W$ be a subspace of $\RR^n$ and let $v\in\RR^n$.
+    Then there are unique vectors $v_W\in W$ and $v_{W^\perp}\in W^\perp$
+    such that $v=v_W + v_{W^\perp}$.
+\end{theorem}
+
+\begin{proof}
+    Let $u_1,\ldots,u_r$ be an orthonormal basis of $W$ and set
+    \[
+        v_W = \sum_{j=1}^r(u_j^Tv)u_j,\quad v_{W^\perp} = v-v_W
+    \]
+    Then $v=v_W + v_{W^\perp}$ and it's easy to check
+    that $v_{W^\perp}\in W^\perp$. 
+
+    To prove uniqueness, suppose $v_W,v_W'\in W$ and
+    $v_{W^\perp},v_{W^\perp}'\in W^\perp$ satisfy
+    \[
+        v_W + v_{W^\perp} = v_W' + v_{W^\perp}'.
+    \]
+    Then
+    \[
+        v_W - v_W' = v_{W^\perp}' - v_{W^\perp},
+    \]
+    putting $v_W - v_{W'}$ in $W\cap W^\perp=\{0\}$. Therefore, $v_W = v_W'$,
+    and it follows that $v_{W^\perp} = v_{W^\perp}'$, proving uniqueness.
+\end{proof}
+
+\begin{corollary}
+    Let $W$ be a subspace of $\RR^n$. Then:
+    \begin{enumerate}
+        \item $\dim W + \dim W^\perp = n$,
+        \item $(W^\perp)^\perp = W$.
+    \end{enumerate}
+\end{corollary}
+
+\begin{corollary}
+    
+\end{corollary}
+
+\begin{theorem}[Rank-Nullity Theorem]
+    Let $A\in\RR^{m\times n}$. Then
+    \[
+        \dim C(A) + \dim N(A) = n.
+    \]
+\end{theorem}
+\begin{proof}
+    Let $U\in\mathbb{R}^{n\times q}$ be a basis matrix of $N(A)$ and let
+    $W\in\RR^{m\times r}$ be a basis matrix of $C(A)$.
+    Then, by the definition of the column space, there is a matrix $V\in\RR^{n\times r}$ such that
+    $W = AV$.
+    The linear independence of the coluns of $V$ follows immediately from
+    that of the columns of $W$.
+    
+    I claim that the $\begin{bmatrix}
+        U&V
+    \end{bmatrix}\in\RR^{m\times(q + r)}$ is a basis matrix of $\RR^n$.
+    To see that its columns span $\RR^n$, let $x\in\RR^n$.
+    Then $Ax\in C(A)$ so there is a $z\in\RR^r$ such that $Ax=Wz$.
+    It follows that $x - Vy\in N(A)$ as
+    \[
+        A(x-Vy) = Ax - AVy = Ax - Wy = Ax - Ax = 0.
+    \]
+    Therefore, $x-Vz = Uy$ for some $y\in\RR^q$. Rearranging, we have
+    \[
+        x = Uy + Vz = \begin{bmatrix}U & V\end{bmatrix}
+        \begin{bmatrix}y\\z\end{bmatrix},
+    \]
+    putting $x$ in the column space of $\begin{bmatrix}U & V\end{bmatrix}$.
+    Thus, the columns of $\begin{bmatrix}U & V\end{bmatrix}$ span $\RR^n$.
+
+    To see that the columns of $\begin{bmatrix}U & V\end{bmatrix}$ are
+    linearly independent, suppose
+    \[
+        Uy + Vz = 0.
+    \]
+    Then
+    \[
+        0 = A0 = A(Uy+Vz) = AUy + AVz = 0 + Wz = Wz.
+    \]
+    Since the columns of $W$ are linearly independent, $z=0$.
+    Consequently, $Uy=0$ and, by the linear independence of the columns of $U$,
+    $y=0$. Thus, the columns of $\begin{bmatrix}U & V\end{bmatrix}$
+    are linearly independent.
+\end{proof}
+
+\begin{corollary}
+    Let $A\in\RR^{m\times n}$. Then
+    \[
+        C(A) = N(A^T)^\perp.
+    \]
+\end{corollary}
+\begin{proof}
+    The inclusion $C(A)\subseteq N(A^T)^\perp$ is obvious:
+    if $b=Ax\in C(A)$ and $y\in N(A^T)$, then
+    \[
+        y^Tb = y^T(Ax) = (y^TA)x = 0x = 0, 
+    \]
+    implying $b\in N(A^T)^\perp$.
+
+    Conversely, suppose $y\in C(A)^\perp$. Then
+    \[(A^Ty)^Tx = y^T(Ax) = 0\]
+    for all $x\in\RR^n$, implying $A^Ty=0$. Therefore, $y\in N(A^T)$ and
+    we've shown that $C(A)^\perp\subseteq N(A^T)$.
+    Taking orthogonal complements, we get
+    \[
+        N(A^T)^\perp\subseteq (C(A)^\perp)^\perp = C(A).\qedhere
+    \]
+\end{proof}
+
+\begin{corollary}
+    Let $A\in\RR^{m\times n}$. Then
+    \[\dim C(A) = \dim C(A^T).\]
+\end{corollary}
+
+\begin{proof}
+    \begin{align*}
+        \dim C(A) &= \dim N(A^T)^\perp\\
+        &= m - \dim N(A^T)\\
+        &= \dim C(A^T)\qedhere
+    \end{align*}
+\end{proof}
+
+\begin{theorem}
+    Let $A\in\RR^{m\times n}$ and let $b\in\RR^m$.
+    Then exactly one of the following conclusions hold:
+    \begin{enumerate}
+        \item $Ax=b$ has a solution.
+        \item There is a $y\in\RR^m$ such that $y^TA=0$ and $y^Tb\neq 0$.
+    \end{enumerate}
+\end{theorem}
+
+\begin{proof}
+    Suppose (1) doesn't hold. Then $b\notin C(A)$.
+    As $C(A)=N(A^T)^\perp$, there is a $y\in N(A^T)$ such that $y^Tb\neq 0$.
+    Since $y\in N(A^T)$, we have $y^TA=0$. Therefore, (2) holds.
+\end{proof}
+
+\section{Convex sets}
+
+\begin{theorem}
+    Let $C\subseteq \RR^n$ be a nonempty, closed, convex set and let
+    $b\in\RR^n\setminus C$.
+    Then there is a unique $c^*\in C$ such that
+    \[
+        \|b - c^*\| = \inf_{c\in C}\|b - c\|.
+    \]
+\end{theorem}
+
+\begin{proof}
+    Let $c_0\in C$ and let $r=\|b - c_0\|$.
+    Then
+    \[
+        C_r := C\cap \{y\in\RR^n : \|b - y\|\leq r\}
+    \]
+    is a nonempty, compact set not containing $b$.
+    Therefore, there is a $c^*\in C_r$ such that
+    \[
+        \|b - c^*\| = \inf_{c\in C_r}\|b - c\|.
+    \]
+    If $c\in C\setminus C_r$, then
+    \[
+        \|b - c^*\|\leq r < \|b - c\|.
+    \]
+    Therefore,
+    \[
+        \|b - c^*\| = \inf_{c\in C}\|b - c\|.
+    \]
+
+    It remains to prove the unicity of $c^*$.
+    Suppose that $c^{**}\in C$ satisfies
+    \[
+        \|b - c^{**}\| = \|b - c^*\|.
+    \]
+    Then
+    \[
+        c^{***} := \frac12(c^* + c^{**}) \in C
+    \]
+    by convebity.
+    By the Pythagorean Theorem,
+    \[
+        \|b - c^*\|^2 = \|b - c^{**}\|^2 + \|c^{**} - c^{***}\|^2
+    \]
+    Since $\|b - c^{**}\| = \|b - c^*\|$, it follows that $c^{***} = c^{**}$ and,
+    by definition of $c^{***}$, that $c^{**}=c^*$.
+\end{proof}
+
+\begin{theorem}[Separating Hyperplane Theorem]
+    Let $C\subset\RR^n$ be a nonempty, closed, convex set and let
+    $b\in \RR^n\setminus C$.
+    Then there is a vector $y\in\RR^n$ such that
+    \[
+        y^Tc < y^Tb
+    \]
+    for all $c\in C$.
+\end{theorem}
+
+\begin{theorem}[Farkas's Lemma]
+    Let $A\in\RR^{m\times n}$, let $b\in \RR^m$, and suppose that
+    $Ax=b$ has no solution with $x\geq 0$.
+    Then there is a $y\in\RR^m$ such that $y^TA\geq 0$ and $y^Tb < 0$.
+\end{theorem}
+
+\begin{proof}
+    Let
+    \[
+    C = \{Ax : x\geq 0\}.
+    \]
+    Then $C$ is a nonempty, closed (why?), convex set not containing $b$.
+    Therefore, there is a $y\in\RR^m$ such that $y^Tb < y^Tc$ for all
+    $c\in C$. Since $0\in C$, we have $y^Tb < 0$.
+    For every $c\in C$ and every $t>0$ we have $tc\in C$, implying
+    \[
+        \frac1ty^Tb < \frac1ty^T(tc) = y^Tc.
+    \]
+    Letting $t\to\infty$ gives $y^Tc\geq 0$.
+    Taking $c$ to be the columns of $A$ gives $y^TA\geq 0$.
+\end{proof}
+
+
+
+\section{Duality}
+
+Let
+\[
+    A=\begin{bmatrix}a_1\\\vdots\\a_m\end{bmatrix}\in\RR^{m\times n},
+\]
+let $b\in\RR^{m\times 1}$, and let $c\in\RR^{1\times n}$.
+Define
+\begin{align*}
+    \cF &= \{x\in \RR^{n\times 1}: Ax\geq b\},\\
+    \cG &= \{y\in\RR^{1\times m}: \text{$y\geq 0$ and $yA=c$}\}.
+\end{align*}
+
+
+
+
+\begin{theorem}[Weak Duality]
+    Let $x\in\cF$ and let $y\in \cG$. Then
+    \[
+        yb\leq cx.
+    \]
+\end{theorem}
+
+\begin{proof}
+    We have:
+    \begin{align*}
+    yb &\leq yAx&\text{(as $b\leq Ax$ and $y\geq 0$)}\\
+    &= cx&\text{(as $yA=c$)}
+    \end{align*}
+\end{proof}
+
+
+\begin{theorem}[Strong Duality]
+    Suppose there is a point $x^*\in\cF$ such that
+    \[
+        cx^* = \inf_{x\in\cF}cx.
+    \]
+    Then $c$ belongs to the cone spanned by the constraints $a_i$ active at $x^*$:
+    \[
+        c\in \cone\{a_i : a_ix^* = b_i\}
+    \]
+    In other words, there is a point $y^*\in\cG$ such that
+    \[
+        y_i^*(b_i-a_ix^*)=0\quad\text{for all $i$}.
+    \]
+    Moreover,
+    \[
+        cx^* = y^*b = \sup\{yb : y\in\cG\}.
+    \]
+\end{theorem}
+
+\begin{proof}
+    Let $I=\{i : a_x^*=b_i\}$.
+    By Farkas's Lemma, to show that $c\in\cone\{a_i: i\in I\}$, it suffces to show that
+    \[
+        \text{$a_iv\geq 0$ for all $i\in I$}\quad\text{implies}\quad cv\geq 0.
+    \]
+    So suppose $a_iv\geq 0$ for all $i\in I$.
+    If $i\in I$ and $\epsilon > 0$, then
+    \[
+        a_i(x^* + \epsilon v) = a_ix^* + \epsilon a_iv \geq b_i
+    \]
+    while if $i\notin I$ and $\epsilon > 0$ is sufficiently small, then
+    \[
+        a_i(x^* + \epsilon v) = a_ix^* + \epsilon a_iv > b_i.
+    \]
+    Therefore, for sufficiently small $\epsilon > 0$,
+    \[
+        x^* + \epsilon v\in\cF
+    \]
+    and, by the optimaliy of $x^*$,
+    \[
+        cx^* \leq c(x^* + \epsilon v).
+    \]
+    It follows that $cv\geq 0$.
+
+    Since $c\in\cone\{a_i : i \in I\}$, there is a vector
+    $y^*\geq 0$ such that $y_i^*=0$ for all $i\notin I$ and
+    \[
+        c = yA = \sum_{i\in I}y_ia_i.
+    \]
+    In particular, $y^*\in\cG$.
+    Also,
+    \[
+        cx^* = yAx^* = \sum_{i\in I} y_i^*a_ix^*
+        = \sum_{i\in I} y_i^*b_i = \sum_i y_i^*b_i = y^*b.
+    \]
+    The identity
+    \[
+        y^*b = \sup\{yb:y\in\cG\}
+    \]
+    now follows from weak duality.
+\end{proof}
+
+\section{Polyhedra}
+
+A \emph{polyhedron} is the solution set of a system of finitely many
+linear inequalities of the form $a_ix\leq b_i$.
+
+A \emph{polytope} is the convex hull of a finite set of points.
+
+\begin{theorem}
+    A polytope is a polyhedron.
+\end{theorem}
+\begin{proof}
+    Suppose $P$ is the convex hull of $x_1,\ldots,x_n\in\RR^m$.
+    Define $f:\RR^n\to\RR^m$ by
+    \[
+        f(t_1,\ldots,t_n) = \sum_i t_ix_i.
+    \]
+    Then $f$ is a linear map and $P=f(\Delta^{n-1})$.
+    Therefore, $P$ is a polyhedron.
+\end{proof}
+
+Let $C\subset\RR^{n}$ be a closed and convex.
+
+A \emph{face} of $C$ is a set of the form
+\[
+    F = \{x\in C : \ell(x)=b\},
+\]
+where $\ell$ is a linear functional on $\RR^n$, $b\in\RR$,
+and $\ell(x)\leq b$ for all $x\in C$.
+Note that faces of $C$ are, themselvess, closed and convex.
+
+If $F\neq\emptyset$ and $F\neq C$, then $F$ is called a
+\emph{proper face} of $C$.
+
+A point $v\in C$ is called an \emph{extreme point} of $C$ If
+$x, y\in C$ and $v=\frac12(x+y)$ imply $v=x=y$.
+
+\begin{theorem}
+    Let $F = \{x\in C : \ell(x)\leq b\}$ be a face of $C$
+    and let $v$ be an extreme point of $F$.
+    Then $v$ is an extreme point of $C$.
+\end{theorem}
+
+\begin{proof}
+    Suppose $v=\frac12(x+y)$ with $x,y\in C$.
+    As $\ell(v)=b$,
+    \[
+        b = \ell(v) = \ell(\tfrac12(x+y)) = \tfrac12(\ell(x)+\ell(y)).
+    \]
+    As $\ell(x)\leq b$ and $\ell(y)\leq b$, we must have
+    \[
+        b=\ell(x)=\ell(y),
+    \]
+    implying $x,y\in F$.
+    Since $v$ is an extreme point of $F$, $v=x=y$.
+    It follows that $v$ is an extreme point of $C$.
+\end{proof}
+
+\subsection{Extreme points of polyhedra}
+
+Let
+\[
+    A = \begin{pmatrix}a_1\\\vdots\\a_m\end{pmatrix}
+    \in\RR^{m\times n}
+\]
+and let $P=\{x\in\RR^{n\times 1}:Ax\leq b\}$.
+
+For $x\in P$, let $I_x$ be the \emph{active set} of $x$:
+\[
+    I_x = \{i : a_ix=b_i\}
+\]
+
+\begin{theorem}
+    Let $v\in P$.
+    Then $v$ is an extreme point of $P$ if and only if
+    \[
+        \spn\{a_i: i\in I_x\}=\RR^{1\times n}.
+    \]
+\end{theorem}
+
+\section{Recession Cones}
+
+For subset $X$ of $\RR^n$ and a point $x\in X$, define the
+\emph{recession cone to $X$ at $x$} by
+\[
+    R_{X,x} =
+    \{v\in\RR^n : \text{$x + tv\in X$ for all $t\geq 0$}\}.
+\]
+
+\begin{lemma}
+    Let $C$ be convex and let $x\in C$.
+    Then $R_{C,x}$ is closed under addition.
+\end{lemma}
+\begin{proof}
+    Let $v, w\in R_{C, x}$. Then $x+2v\in C$, $x+2w\in C$, and
+    \[
+        x + (v+w) = \frac12(x + 2v) + \frac12(x + 2w)
+        \in [x+2v, x+2w]\subseteq C.\qedhere
+    \]
+\end{proof}
+
+\begin{theorem}
+    Let $C$ be a nonempty, closed, convex subset of $\RR^n$.
+    Then $R_{C,x}=R_{C,y}$ for all $x,y\in C$.
+\end{theorem}
+
+\begin{proof}
+    Let $x,y\in C$.
+    If suffices to show that if $v\in R_{C,x}$ then $y+v\in C$.
+    Let $v\in R_{C,x}$ and define
+    \[
+        t_n=\frac{\|v\|}{\|x + nv - y\|},\qquad 
+        z_n = (1-t_n)y + t_n(x+nv).
+    \]
+    If $n$ is suffciently large, then $0\leq t_n\leq 1$ and
+    $z_n\in [y, x+nv]\subseteq C$ by the convexity of $C$.
+    It's routine to check that $z_n\to y+v$ as $n\to\infty$.
+    Since $C$ is closed, $y+v\in C$.
+\end{proof}
+
+The preceding theorem justifies abbreviating $R_{C,x}$ to $R_C$
+for $C$ closed and convex.
+
+\section{Basic solutions}
+
+Let $A\in\RR^{m\times n}$ and let $b\in\RR^m$.
+A vector $x^*\in\RR^n$ is a \emph{basic solution of $Ax=b$}
+if $Ax^*=b$ and there are sets of indices
+\[
+    M\subseteq\{1,\ldots,m\}\quad\text{and}\quad
+    N\subseteq\{1,\ldots,n\}
+\]
+such that $x_i^*=0$ for all $i\in N$ and
+\[
+    \rank\begin{pmatrix}
+        A[M,:\,]\\I[N,:\,]
+    \end{pmatrix}=n.
+\]
+Note that $Ax^*=b$ and $x_i^*=0$ for all $i\in N$ imply
+\[
+    \begin{pmatrix}A[M,:\,]\\I[N,:\,]\end{pmatrix}x^*
+    = \begin{pmatrix}b[M]\\0\end{pmatrix}.
+\]
+
+\begin{lemma}
+    Let $x^*\in\RR^n$ and let $B=\{i : x_i^*\neq 0\}$.
+    Then $x^*$ is a basic solution of $Ax=b$ if and only if $A[\,:\,,B]z = b$
+    has unique solution $z=x^*[B]$.
+\end{lemma}
+
+\begin{proof}
+    First, observe that if $\{1,\ldots,n\} = B\sqcup N$ then
+    \[
+        \left\{x\in\RR^n : \begin{pmatrix}A\\I[N,:\,]\end{pmatrix}x
+        =\begin{pmatrix}b\\0\end{pmatrix}\right\}
+        = \{x\in\RR^n : Ax=b,\;x[N]=0\}
+    \]
+    and the mapping
+    \[
+        \{x\in\RR^n : Ax=b,\;x[N]=0\}\longrightarrow
+        \{z\in\RR^k : A[\,:\,,B]z=b\}
+    \]
+    defined by $x\mapsto x[B]$ is a bijection.
+
+    Now let $x^*\in\RR^n$ and let $B=\{i : x_i^*\neq 0\}$.
+    Suppose $z=x^*[B]$ is the unique solution of $A[\,:\,,B]z = b$.
+    Then
+    \[
+        \begin{pmatrix}A\\I[N,:\,]\end{pmatrix}x
+        =\begin{pmatrix}b\\0\end{pmatrix}.
+    \]
+    has unique solution $x=x^*$.
+    In particular,
+    \[
+        \rank\begin{pmatrix}A\\I[N,:\,]\end{pmatrix}=n.
+    \]
+    Therefore, $x^*$ is a basic solution of $Ax=b$.
+
+    Conversely, suppose that $x^*$ is a basic solution of $Ax=b$.
+    Then $Ax^*=b$ and there are sets of indices
+    \[
+        M\subseteq\{1,\ldots,m\}\quad\text{and}\quad
+        N\subseteq\{1,\ldots,n\}
+    \]
+    such that $x_i^*=0$ for all $i\in N$ and
+    \[
+        \rank\begin{pmatrix}
+            A[M,:\,]\\I[N,:\,]
+        \end{pmatrix}=n.
+    \]
+    We have $B\subseteq \{1,\ldots,n\}\setminus N$.
+
+
+
+
+\end{proof}
+
+\begin{theorem}
+    Suppose $\rank A=m$.
+    Then $x^*$ is a basic solution of $Ax=b$ if and only if $Ax^*=b$ and
+    there is a set $B\subseteq\{1,\ldots,n\}$ of size $m$
+    such that $\rank A[\,:\,,B]=m$ and $x_i^*=0$ for all $i\notin B$.
+\end{theorem}
+
+\begin{proof}
+    Suppose that $Ax^*=b$ and that there is a set
+    $B\subseteq\{1,\ldots,n\}$ of size $m$ such that
+    $\rank A[\,:\,,B]=m$ and $x_i^*=0$ for all $i\notin B$.
+    Take $M=\{1,\ldots,m\}$ and $N = \{1,\ldots,n\}\setminus B$.
+    By design, $x_i^*=0$ for all $i\in N$.
+    To show that
+    \[
+        \rank\begin{pmatrix}
+            A[M,:\,]\\I[N,:\,]
+        \end{pmatrix}=n,
+    \]
+    is suffices to show that $x^*$ is the unique solution of
+    \[
+        \begin{pmatrix}A\\I[N,:\,]\end{pmatrix}x
+        =\begin{pmatrix}b\\0\end{pmatrix}.\tag{\dag}
+    \]
+    If $x$ is any solution of this equation, then $Ax=b$ and $x[N]=0$.
+    Therefore,
+    \[
+        b = Ax = A[\,:\,,B]x[B].
+    \]
+    Since $\rank A[\,:\,,B]$ is assumed equal to $m$,
+    the $m\times m$ matrix $A[\,:\,,B]$ is invertible and
+    \[
+        x[B] = A[\,:\,,B]^{-1}b.
+    \]
+    Thus, (\dag) has a unique solution.
+    Therefore, $x^*$ is a basic solution of $Ax=b$.
+
+    Conversely, suppose that $x^*$ is a basic solution of $Ax=b$.
+    Then $Ax^*=b$ and there are sets of indices
+    \[
+        M\subseteq\{1,\ldots,m\}\quad\text{and}\quad
+        N\subseteq\{1,\ldots,n\}
+    \]
+    such that $x_i^*=0$ for all $i\in N$ and
+    \[
+        \rank\begin{pmatrix}
+            A[M,:\,]\\I[N,:\,]
+        \end{pmatrix}=n.
+    \]
+    We may assume, without loss of generality, that $|M| + |N|=n$.
+    Let $B=\{1,\ldots,n\}\setminus N$.
+    Then
+    \[
+        A[\,:\,,B]z = b
+    \]
+    has a unique solution: $z=x^*[B]$ is clearly such a solution, and if $z$
+    is any such solution, then the vector $x\in\RR^n$ characterized by $x[B]=z$
+    and $x[N]=0$ a solution of $Ax=b$.
+    Since $x^*$ is the unique solution of $Ax=b$, it follows that $z=x^*[B]$.
+
+\end{proof}
+\end{document}
